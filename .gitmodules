@@ -1,0 +1,3 @@
+[submodule "todo_web"]
+  path = todo_web
+  url = https://github.com/Romano125/django-react-tutorial.git

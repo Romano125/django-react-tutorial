@@ -3,39 +3,39 @@
 ## Postavljanje projekta
 
 Kreiramo direktorij aplikacije i prebacujemo se u taj direktorij:
-    * mkdir TodoApp
-_   * cd TodoApp
+* mkdir TodoApp
+* cd TodoApp
 
 
 Kreiramo virtualno okruženje kako bi instalirali samo pakete koji su nam potrebni za aplikaciju:
-    * `python3 -m venv ime-virtualnog-okruzenja`
+* `python3 -m venv ime-virtualnog-okruzenja`
 
 
 Aktivacija virtualnog okruženja potrebna je prije nego se krene u samo izradu projekta:
-    * Linux -- `source ime-virtualnog-okruzenja/bin/activate`
-    * Windows -- `'ime-virtualnog-okruzenja\Scripts\activate'`
+* Linux -- `source ime-virtualnog-okruzenja/bin/activate`
+* Windows -- `'ime-virtualnog-okruzenja\Scripts\activate'`
 
 
 Instaliramo Django i Django REST Framework:
-    * `pip install django`
-    * `pip install djangorestframework`
+* `pip install django`
+* `pip install djangorestframework`
 
 
 Dobro je nakon svake instalacije u virtualnom okruženju kopirati sve instalirane pakete u requirements.txt tako da osobe koje dođu na projekt mogu pokrenuti sve potrebne instalacije pomoću komande `pip install -r requirements.txt`.
 
 
 Spremanje paketa u requirements.txt:
-    * `pip freeze > requirements.txt`
+* `pip freeze > requirements.txt`
 
 
 Kreiramo Django projekt:
-    * `django-admin startproject todo_api .` (Obratite pažnju da kreiramo projekt u trenutni direktorij ('.'))
+* `django-admin startproject todo_api .` (Obratite pažnju da kreiramo projekt u trenutni direktorij ('.'))
 
 
 Preselimo se u direktorij gdje je naš Django projekt te kreiramo prvu aplikaciju (u jednom django projektu možemo imati više Django aplikacija te je poželjno da svaka aplikacija ima svoju svrhu - npr. todo aplikacija ima svu logiku za todo-e, auth aplikacija bi imala svu logiku vezanu uz autentikaciju i slično):
-    * `cd todo_api`
-    * `django-admin startapp todo`
-    * `cd ..`
+* `cd todo_api`
+* `django-admin startapp todo`
+* `cd ..`
 
 
 Dodajemo `rest_framework` i našu aplikaciju u instalirane aplikacije (`todo_api/settings.py`):
@@ -56,12 +56,12 @@ INSTALLED_APPS = [
 Važno je organizirati sve osjetljive podatke koji se koriste u aplikaciji.
 
 Za to cemo iskoristiti .env sintaksu:
-    * `pip install python-dotenv`
+* `pip install python-dotenv`
 
 
 Unutar našeg `todo_api` direktorija kreiramo dva nova file-a:
-    * `touch .env` (ovdje spremamo sve osjetljive podatke koje ne zelimo da ostali vide, OVO SE NE VERZIONIRA!
-    * `touch .env.example` (ovdje spremamo dummy podatke kako bi osoba koja dolazi na projekt znala sto sebi mora postaviti u .env kako bi mu aplikacija radila, OVO SE VERZIONIRA!)
+* `touch .env` (ovdje spremamo sve osjetljive podatke koje ne zelimo da ostali vide, OVO SE NE VERZIONIRA!
+* `touch .env.example` (ovdje spremamo dummy podatke kako bi osoba koja dolazi na projekt znala sto sebi mora postaviti u .env kako bi mu aplikacija radila, OVO SE VERZIONIRA!)
 
 
 U `todo_api/settings.py` dodajemo na vrh:
@@ -80,7 +80,7 @@ CORS nam omogućava da specificiramo od koga smijemo primati zahtjeve pošto pos
 
 
 Potrebno je dodati paket za corseve:
-    * `pip install django-cors-headers`
+* `pip install django-cors-headers`
 
 
 Ažuriramo `todo_api/settings.py`:
@@ -113,7 +113,7 @@ CORS_ORIGIN_WHITELIST = (
 Dodajemo PostgreSQL bazu s kojom ćemo raditi u našoj aplikaciji.
 
 Instalacija paketa za rad sa PostgreSQL-om ( ukoliko vam komanda ne radi pokrenite `sudo apt-get install libpq-dev` na linuxu ):
-    * `pip install psycopg2`
+* `pip install psycopg2`
 
 
 Ažuriramo naše environment varijable pošto radimo sa osjetljivim podatcima poput username-a i password-a za pristup bazi podataka.
@@ -176,13 +176,13 @@ created_at = models.DateTimeField(default=timezone.now)
 
 
 Nakon svake izmjene nekog od modela potrebno je pokrenuti naredbu koja će detektirati sve promjene i napraviti migraciju kako bi se sve izmjene modela promjenile i u bazi:
-    * `python manage.py makemigrations --name todo_item_model`
+* `python manage.py makemigrations --name todo_item_model`
 
 
 Kreiranu migraciju mozete pronaći u `todo_api/todo/migrations/0001_todo_item_model.py`.
 
 Nakon kreiranja migracije potrebno ju je i pokrenuti kako bi se izmjene doista napravile u bazi:
-    * `python manage.py migrate`
+* `python manage.py migrate`
 
 U bazi možete provjeriti ako se uspješno stvorila vaša tablica.
 
@@ -264,7 +264,7 @@ urlpatterns = [
 ## Pokretanje i testiranje
 
 Naš API pokrećemo pomoću:
-    * `python3 manage.py runserver`
+* `python3 manage.py runserver`
 
 
 Trebali bi vidjeti sučelje Django REST Frameworka gdje možete isprobati sve endpointove.

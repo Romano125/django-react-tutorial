@@ -165,7 +165,7 @@ from django.utils import timezone
 
 class TodoItem(models.Model):
 label = models.CharField(max_length=20)
-description = models.CharField(max_length=20)
+description = models.CharField(max_length=200)
 completed = models.BooleanField(default=False)
 created_at = models.DateTimeField(default=timezone.now)
 
@@ -202,6 +202,7 @@ class TodoItemSerializer(serializers.ModelSerializer):
         fields = ('id',
                   'label',
                   'description',
+                  'completed',
                   'created_at')
 ```
 
@@ -224,6 +225,24 @@ class TodoViewSet(viewsets.ModelViewSet):
     serializer_class = TodoItemSerializer
     queryset = TodoItem.objects.all()
 ```
+
+
+Ako želimo dodati naš custom endpoint u viewset koristimo dekorator `@action` te specificiramo path name da odgovara REST metodologiji.
+Kreirat ćemo naš custom action odmah u našu kreiranu klasu `TodoViewSet`:
+```python
+@action(methods=['GET'], detail=False, url_path='completed', url_name='get_completed_todos')
+    def get_completed_todos(self, request):
+        completed_todos = self.get_queryset().filter(completed=True)
+        serializer = self.get_serializer_class()(completed_todos, many=True)
+
+        if len(completed_todos) <= 0:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+```
+
+
+Gore navedena akcija dohvaća sve dovršene todo-e.
 
 
 ## Routeri
@@ -252,7 +271,6 @@ from .views import TodoViewSet
 router = routers.DefaultRouter()
 
 # generic crud (get, post, create, delete) + custom operations
-
 router.register(r'todos', TodoViewSet)
 
 urlpatterns = [
@@ -264,7 +282,7 @@ urlpatterns = [
 ## Pokretanje i testiranje
 
 Naš API pokrećemo pomoću:
-* `python3 manage.py runserver`
+* `python manage.py runserver`
 
 
-Trebali bi vidjeti sučelje Django REST Frameworka gdje možete isprobati sve endpointove.
+Na [http://localhost:8000](http://localhost:8000/) trebali bi vidjeti sučelje Django REST Frameworka gdje možete isprobati sve endpointove.

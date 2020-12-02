@@ -10,4 +10,5 @@ class TodoItemSerializer(serializers.ModelSerializer):
         fields = ('id',
                   'label',
                   'description',
+                  'completed',
                   'created_at')

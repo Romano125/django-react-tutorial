@@ -1,13 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
 
-import {TodoMain} from './pages'
+import { store } from "./store";
+import { TodoMain } from "./pages";
 
-import './index.css';
+import "./index.css";
 
 ReactDOM.render(
-  <React.StrictMode>
+  <Provider store={store}>
     <TodoMain />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </Provider>,
+  document.getElementById("root")
 );

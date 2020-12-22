@@ -75,9 +75,23 @@ Kako bi provjerili da sve radi ispravno pokrećemo sljedeću naredbu:
 
 Na [http://localhost:3000/](http://localhost:3000/) trebali bi vidjeti ispis `Hello from todo main app!`.
 
+### Props
+
+Svaka komponenta u React-u moze primati odredene parametre iz svojih nadredenih komponenti te se ti parametri zovu propovi.
+
+Na propove se moze gledati kao da su to parametri funkcije (nasa komponenta u ovom tutorialu zaista i je funkcija) koji se koriste unutar klasicnih HTML tagova.
+
+Kako bi neki od propova mogli iskoristiti unutar naseg HTML koda potrebno ga je staviti unutar viticastih zagradi (npr. `<p>{propName}</p>`).
+
+Propovi se iskoristavaju u child komponentama te kako bi oni bili sinkronizirani sa podacima iz parent komponente koristiti cemo hookove koji ce nam omoguciti slusanje na njihove promjene.
+
+Vise o propovima mozete pogledati [ovdje].
+
 ## Postavljanje store-a
 
 U sklopu projekta koristit ćemo Redux Toolkit koji nam olakšava rad sa store-om, pisanje akcija, koristenje reducera.
+
+Postoje mnoge prakse kako najbolje organizirati Redux (ducks pattern, features pattern, ...) te cemo u sklopu ovog tutoriala sve vezano za Redux (akcije, reducere, selectore) drzati u jednom folderu (`src/store`).
 
 Instaliramo ga pomoću sljedeće komande: `npm i @reduxjs/toolkit`
 
@@ -139,6 +153,85 @@ ReactDOM.render(
 );
 ```
 
+### Akcije
+
+Kako bi dohvatili neku vrijednost iz store-a ili kako bi komunicirali sa nasim API-jem potrebno je pozvati odredenu akciju koja ce nam to omoguciti.
+
+Akcije nam obicno imaju tri stanja REQUEST, SUCCESS, FAILURE, te ovisno o navedenim stanjima korisniku prikazujemo sadrzaj (npr. kada je stanje akcije tipa REQUEST korisniku se prikazuje neka vrsta loadinga, a na SUCCESS mu se prikazu odredeni podaci).
+
+Kako bi mogli komunicirati sa nasim API-jem koristit cemo `axios`: `npm i axios`
+
+### Reduceri
+
+Kako bi mogli upravljati podacima koji se dobiju nakon sto se izvrsi odredena akcija koristimo reducere.
+
+Na njih mozemo gledati kao spremnike informacija koje dobivamo nakon izvrsene akcije te se ti podatci koriste u nasim komponentama.
+
+Vazno je da reduceri budu jasno nazvani (npr. reducer `todos.ts` ce nam obradivati podatke za sve akcije koje se izvrse, a vezane su uz todo-e).
+
+Kreiramo nas prvi reducer `src/store/reducers/todos.ts` koji ce biti zaduzen za obradu rezultata akcija vezanih za todo-e.
+
+```javascript
+// src/store/reducers/todos.ts
+import { createSlice } from "@reduxjs/toolkit";
+
+import { actions } from "../../constants";
+
+interface InitialStateI {
+  data: object;
+  hasLoaded: boolean;
+}
+
+interface ActionI {
+  payload: any;
+  type: string;
+}
+
+const initialState: InitialStateI = {
+  data: {},
+  hasLoaded: false,
+};
+
+const actionMap = {
+  [actions.TODOS_GET_REQUEST]: (state: InitialStateI) => ({
+    ...state,
+    hasLoaded: false,
+  }),
+  [actions.TODOS_GET_SUCCESS]: (state: InitialStateI, action: ActionI) => ({
+    ...state,
+    data: action.payload.data,
+    hasLoaded: true,
+  }),
+  [actions.TODOS_GET_FAILURE]: (state: InitialStateI) => ({
+    ...state,
+    hasLoaded: true,
+  }),
+};
+
+const todos = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {
+    getTodos: (state: InitialStateI, action) => {
+      console.log(action.type);
+
+      return actionMap[action.type](state, action);
+    },
+  },
+});
+
+export const todosActions = todos.actions;
+export default todos.reducer;
+```
+
+### Selectori
+
+Za jednostavnije upravljanje podacima iz reducer-a koristimo selectore.
+
+## Environment varijable
+
+Instaliramo paket `dotenv` koji ce nam omoguciti rad sa environment varijablama: `npm i dotenv`
+
 ## Style
 
 Kao CSS framework u sklopu ovog tutoriala korititi cemo Bulma CSS, te instaliramo sljedece pakete potrebne za stiliziranje nase aplikacije:
@@ -149,3 +242,4 @@ Kao CSS framework u sklopu ovog tutoriala korititi cemo Bulma CSS, te instaliram
 [function based component]: https://www.robinwieruch.de/react-function-component
 [memoizaciju]: https://codeburst.io/understanding-memoization-in-3-minutes-2e58daf33a19
 [redux dev tools]: https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd
+[ovdje]: https://reactjs.org/docs/components-and-props.html

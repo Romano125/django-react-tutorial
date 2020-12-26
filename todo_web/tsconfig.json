@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "es6",
     "lib": [
       "dom",
@@ -22,5 +23,5 @@
   },
   "include": [
     "src"
-  ]
+  ],
 }

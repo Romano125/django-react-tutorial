@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import config from "../../config";
 
-import { paths } from "../../constants";
+import config from "src/config";
+import { paths } from "src/constants";
 
 interface InitialStateI {
   data: any;

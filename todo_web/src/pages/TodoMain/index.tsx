@@ -1,9 +1,9 @@
 import React, { FC, memo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { selectors } from "../../store";
+import { selectors } from "src/store";
 
-import { getTodos } from "../../store/reducers/todos";
+import { getTodos } from "src/store/reducers/todos";
 
 const TodoMain: FC = () => {
   const dispatch = useDispatch();

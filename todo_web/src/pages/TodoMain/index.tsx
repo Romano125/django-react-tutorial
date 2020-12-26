@@ -1,22 +1,25 @@
-import React, { FC, memo } from "react";
-import { compose } from "redux";
-import { connect, useDispatch, useSelector } from "react-redux";
+import React, { FC, memo, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { todosActions } from "../../store/reducers/todos";
 import { selectors } from "../../store";
 
-interface Iing {
-  todos: object;
-  hasLoaded: boolean;
-}
+import { getTodos } from "../../store/reducers/todos";
 
 const TodoMain: FC = () => {
   const dispatch = useDispatch();
-  const { hasLoaded, todos }: Iing = useSelector((state: any) =>
+  const { hasLoaded, todos } = useSelector((state: any) =>
     selectors.todos(state)
   );
 
-  dispatch(todosActions.getTodos);
+  useEffect(() => {
+    dispatch(getTodos());
+  }, [dispatch]);
+
+  if (!hasLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  console.log(todos);
 
   return (
     <div>

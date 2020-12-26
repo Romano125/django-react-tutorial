@@ -81,7 +81,7 @@ CORS nam omogućava da specificiramo od koga smijemo primati zahtjeve pošto pos
 
 Potrebno je dodati pakete za corseve:
 
-- `pip install django-cors-headers django-cors-middleware`
+- `pip install django-cors-headers`
 
 Ažuriramo `todo_api/settings.py`:
 

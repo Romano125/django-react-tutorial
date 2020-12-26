@@ -1,5 +1,5 @@
 export default {
   API: {
-    TODOS: "/todos",
+    TODOS: "/todos/",
   },
 };

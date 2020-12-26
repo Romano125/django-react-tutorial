@@ -79,7 +79,7 @@ Kako bi mogli komunicirati sa našim API-jem potrebno je postaviti CORS.
 
 CORS nam omogućava da specificiramo od koga smijemo primati zahtjeve pošto postoje situacije kada cemo htjeti da nas API radi isključivo za našu frontend aplikaciju te želimo da svi vanjski zahtjevi na naš API endpoint budu odbijeni.
 
-Potrebno je dodati pakete za corseve:
+Potrebno je dodati paket za corseve:
 
 - `pip install django-cors-headers`
 

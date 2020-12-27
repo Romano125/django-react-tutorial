@@ -3,16 +3,9 @@ import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "src/config";
 import { paths } from "src/constants";
 
-interface InitialStateI {
-  data: any;
-  hasLoaded: boolean;
-}
+import { TodosState, TodosPayload } from "src/constants/interfaces";
 
-interface TodoI {
-  data: any;
-}
-
-const initialState: InitialStateI = {
+const initialState: TodosState = {
   data: [],
   hasLoaded: false,
 };
@@ -21,25 +14,30 @@ const getTodos = createAsyncThunk("getTodos", async () =>
   config.axios.get(paths.API.TODOS).then((result) => result)
 );
 
+const extraReducers = {
+  [getTodos.pending.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: false,
+  }),
+  [getTodos.fulfilled.type]: (
+    state: TodosState,
+    { payload }: PayloadAction<TodosPayload>
+  ) => ({
+    ...state,
+    data: payload.data,
+    hasLoaded: true,
+  }),
+  [getTodos.rejected.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: true,
+  }),
+};
+
 const todos = createSlice({
   name: "todos",
   initialState,
   reducers: {},
-  extraReducers: {
-    [getTodos.pending.type]: (state) => ({
-      ...state,
-      hasLoaded: false,
-    }),
-    [getTodos.fulfilled.type]: (state, { payload }: PayloadAction<TodoI>) => ({
-      ...state,
-      data: payload.data,
-      hasLoaded: true,
-    }),
-    [getTodos.rejected.type]: (state) => ({
-      ...state,
-      hasLoaded: true,
-    }),
-  },
+  extraReducers,
 });
 
 export { getTodos };

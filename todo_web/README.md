@@ -17,6 +17,30 @@ Unutar `/src` kreiramo sljedeće direktorije:
 - `/style` - u njega stavljamo definicije stilova na globalnoj razini
 - `/utils` - iz njega exportamo pomoćne funkcije koje koristimo na globalnoj razini
 
+Kao i kod backend-a dodat cemo podrsku za environment varijable te dodajemo sljedeci paket: `npm i dotenv`
+
+Kreiramo u `src` dva nova file-a `.env` (sadrzi definiciju nasih environment varijabli te se ne verzionira) i `.env.example` (sadrzi primjer varijabli koje treba postaviti u `.env`, verzionira se).
+
+```
+// src/.env
+REACT_APP_API_URL=http://localhost:8000
+```
+
+```
+// src/.env.example
+REACT_APP_API_URL=place_your_api_url_here
+```
+
+Azuriramo `src/tsconfig.json` kako bi mogli koristiti absolutne putanje kada radimo import modula te kako bi izbjegli koristenje `../../../`:
+
+```javascript
+// src/tsconfig.json
+"compilerOptions": {
+    "baseUrl": ".", // add only this line
+    "target": "es6",
+    ...
+```
+
 ## Kreiranje page-a
 
 Kreiramo page `TodoMain` u `src/pages` koji će sadržavati polje za unos todo-a, listu svih todo-a:
@@ -112,11 +136,17 @@ export default combineReducers({
 Konfiguraciju store-a (dodavanje reducer-a, middleware-a, ...) pisemo u `src/store/store.ts`:
 
 ```javascript
-import reducers from "./reducers";
 import { configureStore } from "@reduxjs/toolkit";
+
+import reducers from "./reducers";
 
 export default configureStore({
   reducer: reducers,
+  // disable serializable check when fetching from API (use to avoid console error)
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 ```
 
@@ -140,8 +170,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 
-import { store } from "./store";
 import { TodoMain } from "./pages";
+import { store } from "./store";
 
 import "./index.css";
 
@@ -160,6 +190,21 @@ Kako bi dohvatili neku vrijednost iz store-a ili kako bi komunicirali sa nasim A
 Akcije nam obicno imaju tri stanja REQUEST, SUCCESS, FAILURE, te ovisno o navedenim stanjima korisniku prikazujemo sadrzaj (npr. kada je stanje akcije tipa REQUEST korisniku se prikazuje neka vrsta loadinga, a na SUCCESS mu se prikazu odredeni podaci).
 
 Kako bi mogli komunicirati sa nasim API-jem koristit cemo `axios`: `npm i axios`
+
+Postavljamo axios klijenta globalno na razini nase aplikacije dodajemo `src/config.ts` sa sljedecom konfiguracijom:
+
+```javascript
+import axios from "axios";
+
+export default {
+  axios: axios.create({
+    baseURL: process.env.REACT_APP_API_URL, // read API url from .env file
+    headers: {
+      authorization: "",
+    },
+  }),
+};
+```
 
 ### Reduceri
 

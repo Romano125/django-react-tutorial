@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { selectors } from "src/store";
 
+import { TodosState } from "src/constants/interfaces";
+
 import { getTodos } from "src/store/reducers/todos";
 
 const TodoMain: FC = () => {
   const dispatch = useDispatch();
-  const { hasLoaded, todos } = useSelector((state: any) =>
+  const { hasLoaded, todos } = useSelector((state: { todos: TodosState }) =>
     selectors.todos(state)
   );
 

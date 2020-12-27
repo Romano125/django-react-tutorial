@@ -17,9 +17,23 @@ Unutar `/src` kreiramo sljedeće direktorije:
 - `/style` - u njega stavljamo definicije stilova na globalnoj razini
 - `/utils` - iz njega exportamo pomoćne funkcije koje koristimo na globalnoj razini
 
-Kao i kod backend-a dodat cemo podrsku za environment varijable te dodajemo sljedeci paket: `npm i dotenv`
+Ažuriramo `src/tsconfig.json` kako bi mogli koristiti apsolutne putanje kada radimo import modula te kako bi izbjegli korištenje `../../../`:
 
-Kreiramo u `src` dva nova file-a `.env` (sadrzi definiciju nasih environment varijabli te se ne verzionira) i `.env.example` (sadrzi primjer varijabli koje treba postaviti u `.env`, verzionira se).
+```javascript
+// src/tsconfig.json
+"compilerOptions": {
+    "baseUrl": ".", // add only this line
+    "target": "es6",
+    ...
+```
+
+## Environment varijable
+
+Instaliramo paket `dotenv` koji će nam omogućiti rad sa environment varijablama: `npm i dotenv`
+
+Kao i kod backend-a dodat ćemo podršku za environment varijable te dodajemo sljedeći paket: `npm i dotenv`
+
+Kreiramo u `src` dva nova file-a `.env` (sadrži definiciju naših environment varijabli te se ne verzionira) i `.env.example` (sadrži primjer varijabli koje treba postaviti u `.env`, verzionira se).
 
 ```
 // src/.env
@@ -29,16 +43,6 @@ REACT_APP_API_URL=http://localhost:8000
 ```
 // src/.env.example
 REACT_APP_API_URL=place_your_api_url_here
-```
-
-Azuriramo `src/tsconfig.json` kako bi mogli koristiti absolutne putanje kada radimo import modula te kako bi izbjegli koristenje `../../../`:
-
-```javascript
-// src/tsconfig.json
-"compilerOptions": {
-    "baseUrl": ".", // add only this line
-    "target": "es6",
-    ...
 ```
 
 ## Kreiranje page-a
@@ -93,7 +97,7 @@ ReactDOM.render(
 );
 ```
 
-Kako bi provjerili da sve radi ispravno pokrećemo sljedeću naredbu:
+Kako bi provjerili da sve radi ispravno pokrećemo sljedeću naredbu (koristite ju tijekom ovog tutoriala kako bi mogli provjeriti što se ispisuje u konzoli i kako se mijenja izgled stranice):
 
 - `npm start`
 
@@ -101,29 +105,29 @@ Na [http://localhost:3000/](http://localhost:3000/) trebali bi vidjeti ispis `He
 
 ### Props
 
-Svaka komponenta u React-u moze primati odredene parametre iz svojih nadredenih komponenti te se ti parametri zovu propovi.
+Svaka komponenta u React-u može primati određene parametre iz svojih nadređenih komponenti te se ti parametri zovu propovi (props).
 
-Na propove se moze gledati kao da su to parametri funkcije (nasa komponenta u ovom tutorialu zaista i je funkcija) koji se koriste unutar klasicnih HTML tagova.
+Na propove se može gledati kao da su to parametri funkcije (naša komponenta u ovom tutorialu zaista i je funkcija) koji se koriste unutar klasičnih HTML tagova.
 
-Kako bi neki od propova mogli iskoristiti unutar naseg HTML koda potrebno ga je staviti unutar viticastih zagradi (npr. `<p>{propName}</p>`).
+Kako bi neki od propova mogli iskoristiti unutar našeg HTML koda potrebno ga je staviti unutar vitičastih zagrada (npr. `<p>{propName}</p>`).
 
-Propovi se iskoristavaju u child komponentama te kako bi oni bili sinkronizirani sa podacima iz parent komponente koristiti cemo hookove koji ce nam omoguciti slusanje na njihove promjene.
+Propovi se iskorištavaju u child komponentama te kako bi oni bili sinkronizirani sa podacima iz parent komponente koristiti ćemo hookove koji će nam omogućiti slušanje na njihove promjene.
 
-Vise o propovima mozete pogledati [ovdje].
+Više o propovima možete pogledati [ovdje].
 
 ## Postavljanje store-a
 
-U sklopu projekta koristit ćemo Redux Toolkit koji nam olakšava rad sa store-om, pisanje akcija, koristenje reducera.
+U sklopu projekta koristit ćemo Redux Toolkit koji nam olakšava rad sa store-om, pisanje akcija, korištenje reducera.
 
-Postoje mnoge prakse kako najbolje organizirati Redux (ducks pattern, features pattern, ...) te cemo u sklopu ovog tutoriala sve vezano za Redux (akcije, reducere, selectore) drzati u jednom folderu (`src/store`).
+Postoje mnoge prakse kako najbolje organizirati Redux (ducks pattern, features pattern, ...) te ćemo u sklopu ovog tutoriala sve vezano za Redux (akcije, reducere, selectore) držati u jednom folderu (`src/store`).
 
 Instaliramo ga pomoću sljedeće komande: `npm i @reduxjs/toolkit`
 
 Osim samog toolkit-a potrebno je instalirati i Redux: `npm i redux react-redux @types/react-redux`
 
-U `src/store` kreiramo direktorij za nase reducere (`reducers/`) te unutar njega `index.ts` datoteku gdje cemo ukljuciti sve stvorene reducere kako bi ih kombinirali u jednu cijelinu i time izgradili nas store.
+U `src/store` kreiramo direktorij za naše reducere (`reducers/`) te unutar njega `index.ts` datoteku gdje ćemo ukljuciti sve stvorene reducere kako bi ih kombinirali u jednu cijelinu i time izgradili naš store.
 
-Nas `src/store/reducers/index.ts` izgleda ovako:
+Naš `src/store/reducers/index.ts` izgleda ovako:
 
 ```javascript
 import { combineReducers } from "redux";
@@ -133,7 +137,7 @@ export default combineReducers({
 });
 ```
 
-Konfiguraciju store-a (dodavanje reducer-a, middleware-a, ...) pisemo u `src/store/store.ts`:
+Konfiguraciju store-a (dodavanje reducer-a, middleware-a, ...) pišemo u `src/store/store.ts`:
 
 ```javascript
 import { configureStore } from "@reduxjs/toolkit";
@@ -150,7 +154,7 @@ export default configureStore({
 });
 ```
 
-Gore navedeni `configureStore` iz Redux Toolkit-a automatski ukljucuje Redux Dev Tools preko kojega mozemo pratiti ponasanje nasih akcija ([redux dev tools]).
+Gore navedeni `configureStore` iz Redux Toolkit-a automatski uključuje Redux Dev Tools preko kojega možemo pratiti ponašanje naših akcija ([redux dev tools]).
 
 Kako bi mogli raditi sa store-om potrebno je napraviti ekport reducera i konfiguracije store-a te stvaramo u `src/store` novi `index.ts` iz kojega radimo export svih file-ova iz `store` direktorija:
 
@@ -162,7 +166,7 @@ export { default as store } from "./store";
 
 ### Povezivanje aplikacije i store-a
 
-Kako bi aplikacija mogla komunicirati sa nasim store-om u `src/index.tsx` dodajemo wrapper koji cijelu aplikaciju provida sa nasim store-om.
+Kako bi aplikacija mogla komunicirati sa našim store-om u `src/index.tsx` dodajemo wrapper koji cijelu aplikaciju provida sa našim store-om.
 
 ```javascript
 // src/index.tsx
@@ -185,13 +189,13 @@ ReactDOM.render(
 
 ### Akcije
 
-Kako bi dohvatili neku vrijednost iz store-a ili kako bi komunicirali sa nasim API-jem potrebno je pozvati odredenu akciju koja ce nam to omoguciti.
+Kako bi dohvatili neku vrijednost iz store-a ili kako bi komunicirali sa našim API-jem potrebno je pozvati određenu akciju koja će nam to omogućiti.
 
-Akcije nam obicno imaju tri stanja REQUEST, SUCCESS, FAILURE, te ovisno o navedenim stanjima korisniku prikazujemo sadrzaj (npr. kada je stanje akcije tipa REQUEST korisniku se prikazuje neka vrsta loadinga, a na SUCCESS mu se prikazu odredeni podaci).
+Akcije nam obično imaju tri stanja REQUEST, SUCCESS, FAILURE, te ovisno o navedenim stanjima korisniku prikazujemo sadržaj (npr. kada je stanje akcije tipa REQUEST korisniku se prikazuje neka vrsta loadinga, a na SUCCESS mu se prikažu određeni podaci).
 
-Kako bi mogli komunicirati sa nasim API-jem koristit cemo `axios`: `npm i axios`
+Kako bi mogli komunicirati sa našim API-jem koristit ćemo `axios`: `npm i axios`
 
-Postavljamo axios klijenta globalno na razini nase aplikacije dodajemo `src/config.ts` sa sljedecom konfiguracijom:
+Postavljamo axios klijenta globalno na razini naše aplikacije, dodajemo `src/config.ts` sa sljedećom konfiguracijom:
 
 ```javascript
 import axios from "axios";
@@ -206,48 +210,140 @@ export default {
 };
 ```
 
+Akcije ćemo pisati u sklopu reducer-a stoga više o njima u nastavku.
+
 ### Reduceri
 
-Kako bi mogli upravljati podacima koji se dobiju nakon sto se izvrsi odredena akcija koristimo reducere.
+Kako bi mogli upravljati podacima koji se dobiju nakon što se izvrši određena akcija koristimo reducere.
 
-Na njih mozemo gledati kao spremnike informacija koje dobivamo nakon izvrsene akcije te se ti podatci koriste u nasim komponentama.
+Na njih možemo gledati kao spremnike informacija koje dobivamo nakon izvršene akcije te se ti podaci koriste u našim komponentama.
 
-Vazno je da reduceri budu jasno nazvani (npr. reducer `todos.ts` ce nam obradivati podatke za sve akcije koje se izvrse, a vezane su uz todo-e).
+Važno je da reduceri budu jasno nazvani (npr. reducer `todos.ts` će nam obrađivati podatke za sve akcije koje se izvrše, a vezane su uz todo-e).
 
-Kreiramo nas prvi reducer `src/store/reducers/todos.ts` koji ce biti zaduzen za obradu rezultata akcija vezanih za todo-e.
+Kreiramo naš prvi reducer `src/store/reducers/todos.ts` koji će biti zadužen za obradu rezultata akcija vezanih za todo-e.
+
+Kako ne bi koristili hardcoded vrijednosti u kodu kreiramo u `src/constants` file `paths.ts` koji će sadržavati sve API putanje koje su nam potrebne te `interfaces.ts` gdje ćemo definirati naše interfaceove koje koristimo kroz aplikaciju.
 
 ```javascript
-// src/store/reducers/todos.ts
-import { createSlice } from "@reduxjs/toolkit";
+// src/constants/paths.ts
+export default {
+  API: {
+    TODOS: "/todos/",
+  },
+};
 
-import { actions } from "../../constants";
-
-interface InitialStateI {
-  data: object;
+// src/constants/interfaces.ts
+export interface TodosState {
+  data: Array<object>;
   hasLoaded: boolean;
 }
 
-interface ActionI {
-  payload: any;
-  type: string;
+export interface TodosPayload {
+  data: Array<object>;
 }
 
-const initialState: InitialStateI = {
-  data: {},
+// src/constants/index.ts
+export { default as paths } from "./paths";
+```
+
+Na početku našeg `todos.ts` reducer-a importamo sve što nam je potrebno. Koristit ćemo `slice` te `thunk` iz redux toolkit-a.
+
+```javascript
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+
+import config from "src/config";
+import { paths } from "src/constants";
+
+import { TodosState, TodosPayload } from "src/constants/interfaces";
+```
+
+Svaki reducer ima inicijalno stanje varijabli te ovisno o rezultatu neke akcije stanja varijabli se mijenjaju.
+
+```javascript
+const initialState: TodosState = {
+  data: [],
   hasLoaded: false,
 };
+```
 
-const actionMap = {
-  [actions.TODOS_GET_REQUEST]: (state: InitialStateI) => ({
+Za dohvat svih todo-a koristit ćemo `thunk` kako bi pozvali API endpoint `/todos/` pomoću konfiguriranog axios klijenta. Rezultat axios poziva vraćamo kao rezultat funkcije te naš reducer obrađuje rezultat ovisno o tipu (REQUEST, SUCCESS, FAILURE).
+
+```javascript
+const getTodos = createAsyncThunk("getTodos", async () =>
+  config.axios.get(paths.API.TODOS).then((result) => result)
+);
+```
+
+Nakon uspješno izvršenog dohvata podataka sa našeg API endpointa, response se nalazi u `payload` objektu te na temelju njega ažuriramo naš state.
+
+```javascript
+const extraReducers = {
+  [getTodos.pending.type]: (state: TodosState) => ({
     ...state,
     hasLoaded: false,
   }),
-  [actions.TODOS_GET_SUCCESS]: (state: InitialStateI, action: ActionI) => ({
+  [getTodos.fulfilled.type]: (
+    state: TodosState,
+    { payload }: PayloadAction<TodosPayload>
+  ) => ({
     ...state,
-    data: action.payload.data,
+    data: payload.data,
     hasLoaded: true,
   }),
-  [actions.TODOS_GET_FAILURE]: (state: InitialStateI) => ({
+  [getTodos.rejected.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: true,
+  }),
+};
+```
+
+Jedino što je ostalo je povezati sve definirano pomoću slice-a te napraviti export akcija i našeg reducer-a.
+
+```javascript
+const todos = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {},
+  extraReducers,
+});
+
+export { getTodos };
+export default todos.reducer;
+```
+
+Izgled našeg `todos.ts`:
+
+```javascript
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+
+import config from "src/config";
+import { paths } from "src/constants";
+
+import { TodosState, TodosPayload } from "src/constants/interfaces";
+
+const initialState: TodosState = {
+  data: [],
+  hasLoaded: false,
+};
+
+const getTodos = createAsyncThunk("getTodos", async () =>
+  config.axios.get(paths.API.TODOS).then((result) => result)
+);
+
+const extraReducers = {
+  [getTodos.pending.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: false,
+  }),
+  [getTodos.fulfilled.type]: (
+    state: TodosState,
+    { payload }: PayloadAction<TodosPayload>
+  ) => ({
+    ...state,
+    data: payload.data,
+    hasLoaded: true,
+  }),
+  [getTodos.rejected.type]: (state: TodosState) => ({
     ...state,
     hasLoaded: true,
   }),
@@ -256,30 +352,144 @@ const actionMap = {
 const todos = createSlice({
   name: "todos",
   initialState,
-  reducers: {
-    getTodos: (state: InitialStateI, action) => {
-      console.log(action.type);
-
-      return actionMap[action.type](state, action);
-    },
-  },
+  reducers: {},
+  extraReducers,
 });
 
-export const todosActions = todos.actions;
+export { getTodos };
 export default todos.reducer;
+```
+
+Ažuriramo `src/store/reducers/index.ts` tako da dodajemo naš `todos` reducer:
+
+```javascript
+import { combineReducers } from "redux";
+
+import todos from "./todos";
+
+export default combineReducers({
+  // here we will be adding reducers
+  todos,
+});
 ```
 
 ### Selectori
 
 Za jednostavnije upravljanje podacima iz reducer-a koristimo selectore.
 
-## Environment varijable
+Kreiramo novi direktorij `src/store/selectors` te unutar njega `todos.ts` i `index.ts`.
 
-Instaliramo paket `dotenv` koji ce nam omoguciti rad sa environment varijablama: `npm i dotenv`
+Radimo dohvat `data` objekta iz našeg store-a te varijable `hasLoaded` koja nam govori ako je akcija izvršena.
+
+```javascript
+// src/store/selectors/todos.ts
+import { createSelector } from "reselect";
+
+import { TodosState } from "src/constants/interfaces";
+
+export default createSelector(
+  (state: { todos: TodosState }) => ({
+    hasLoaded: state.todos.hasLoaded,
+    todos: state.todos.data,
+  }),
+  (data) => data
+);
+
+// src/store/selectors/index.ts
+import todos from "./todos";
+
+export default {
+  todos,
+};
+```
+
+Dodajemo defaultni export selectora iz `src/store/index.ts`:
+
+```javascript
+...
+export { default as selectors } from "./selectors";
+...
+```
+
+Ažuriramo `src/pages/TodoMain/index.tsx`:
+
+Koristit ćemo `useDispatch()` i `useSelector()` hook-ove za dispatch akcije te za dohvat podataka iz kreiranog selektora.
+
+```javascript
+...
+import { useDispatch, useSelector } from "react-redux";
+
+import { selectors } from "src/store";
+
+import { TodosState } from "src/constants/interfaces";
+
+import { getTodos } from "src/store/reducers/todos";
+
+const TodoMain: FC = () => {
+  const dispatch = useDispatch();
+  const { hasLoaded, todos } = useSelector((state: { todos: TodosState }) =>
+    selectors.todos(state)
+  );
+  ...
+```
+
+Želimo da nam se dohvat svih postojećih todo-a izvrši na prvom učitavanju stranice stoga koristimo `useEffect()` hook koji će nam to omogućiti. useEffect() će se sljedeći put pozvati ili kod reload-a stranice ili kod promjene prop-a kojega postavimo u njegove dependency array (`[]`).
+
+Koristimo `hasLoaded` varijablu te prikazujemo loader ako se akcija još nije izvršila kako se ne bi desilo da korisnik vidi praznu stranicu dok mu se još sa API endpointa nisu vratili svi todo-i. Ispisujemo dohvaćene todo-e u konzoli.
+
+```javascript
+...
+useEffect(() => {
+  dispatch(getTodos());
+}, [dispatch]);
+
+if (!hasLoaded) {
+  return <div>Loading...</div>;
+}
+
+console.log(todos);
+...
+```
+
+Izgled našeg page-a:
+
+```javascript
+import React, { FC, memo, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+import { selectors } from "src/store";
+
+import { getTodos } from "src/store/reducers/todos";
+
+const TodoMain: FC = () => {
+  const dispatch = useDispatch();
+  const { hasLoaded, todos } = useSelector((state: any) =>
+    selectors.todos(state)
+  );
+
+  useEffect(() => {
+    dispatch(getTodos());
+  }, [dispatch]);
+
+  if (!hasLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  console.log(todos);
+
+  return (
+    <div>
+      <h1>Hello from todo main app!</h1>
+    </div>
+  );
+};
+
+export default memo(TodoMain);
+```
 
 ## Style
 
-Kao CSS framework u sklopu ovog tutoriala korititi cemo Bulma CSS, te instaliramo sljedece pakete potrebne za stiliziranje nase aplikacije:
+Kao CSS framework u sklopu ovog tutoriala korititi ćemo Bulma CSS, te instaliramo sljedeće pakete potrebne za stiliziranje naše aplikacije:
 
 - `npm i bulma`
 - `npm i node-sass`

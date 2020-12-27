@@ -1,16 +1,24 @@
-import React, { FC, memo, useEffect } from "react";
+import React, { FC, memo, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { selectors } from "src/store";
 
 import { TodosState } from "src/constants/interfaces";
 
-import { getTodos } from "src/store/reducers/todos";
+import { createTodo, getTodos } from "src/store/reducers/todos";
 
 const TodoMain: FC = () => {
+  const [todo, setTodo] = useState("");
   const dispatch = useDispatch();
   const { hasLoaded, todos } = useSelector((state: { todos: TodosState }) =>
     selectors.todos(state)
+  );
+
+  const handleInputChange = useCallback((e) => setTodo(e.target.value), []);
+
+  const addTodo = useCallback(
+    () => dispatch(createTodo({ label: todo, description: "Empty" })),
+    [dispatch, todo]
   );
 
   useEffect(() => {
@@ -21,11 +29,16 @@ const TodoMain: FC = () => {
     return <div>Loading...</div>;
   }
 
-  console.log(todos);
-
   return (
     <div>
       <h1>Hello from todo main app!</h1>
+      <input onChange={handleInputChange} />
+      <button onClick={addTodo}>ADD</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>{todo.label}</li>
+        ))}
+      </ul>
     </div>
   );
 };

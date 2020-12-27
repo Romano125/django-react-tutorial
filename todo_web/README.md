@@ -103,6 +103,8 @@ Kako bi provjerili da sve radi ispravno pokrećemo sljedeću naredbu (koristite 
 
 Na [http://localhost:3000/](http://localhost:3000/) trebali bi vidjeti ispis `Hello from todo main app!`.
 
+**NAPOMENA:** Kasnije kada se uključi komunikacija se serverom važno je da uz frontend server (`npm start`) bude pokrenut i backend server (`python3 manage.py runserver`).
+
 ### Props
 
 Svaka komponenta u React-u može primati određene parametre iz svojih nadređenih komponenti te se ti parametri zovu propovi (props).
@@ -119,13 +121,13 @@ Više o propovima možete pogledati [ovdje].
 
 U sklopu projekta koristit ćemo Redux Toolkit koji nam olakšava rad sa store-om, pisanje akcija, korištenje reducera.
 
-Postoje mnoge prakse kako najbolje organizirati Redux (ducks pattern, features pattern, ...) te ćemo u sklopu ovog tutoriala sve vezano za Redux (akcije, reducere, selectore) držati u jednom folderu (`src/store`).
+Poštoje mnoge prakse kako najbolje organizirati Redux (ducks pattern, features pattern, ...) te ćemo u sklopu ovog tutoriala sve vezano za Redux (akcije, reducere, selectore) držati u jednom folderu (`src/store`).
 
 Instaliramo ga pomoću sljedeće komande: `npm i @reduxjs/toolkit`
 
 Osim samog toolkit-a potrebno je instalirati i Redux: `npm i redux react-redux @types/react-redux`
 
-U `src/store` kreiramo direktorij za naše reducere (`reducers/`) te unutar njega `index.ts` datoteku gdje ćemo ukljuciti sve stvorene reducere kako bi ih kombinirali u jednu cijelinu i time izgradili naš store.
+U `src/store` kreiramo direktorij za naše reducere (`reducers/`) te unutar njega `index.ts` datoteku gdje ćemo uključiti sve stvorene reducere kako bi ih kombinirali u jednu cijelinu i time izgradili naš store.
 
 Naš `src/store/reducers/index.ts` izgleda ovako:
 
@@ -233,13 +235,21 @@ export default {
 };
 
 // src/constants/interfaces.ts
+export interface TodoData {
+  completed?: boolean;
+  created_at?: Date;
+  description?: string;
+  id?: number;
+  label?: string;
+}
+
 export interface TodosState {
-  data: Array<object>;
+  data: Array<TodoData>;
   hasLoaded: boolean;
 }
 
 export interface TodosPayload {
-  data: Array<object>;
+  data: Array<TodoData>;
 }
 
 // src/constants/index.ts
@@ -433,7 +443,7 @@ const TodoMain: FC = () => {
   ...
 ```
 
-Želimo da nam se dohvat svih postojećih todo-a izvrši na prvom učitavanju stranice stoga koristimo `useEffect()` hook koji će nam to omogućiti. useEffect() će se sljedeći put pozvati ili kod reload-a stranice ili kod promjene prop-a kojega postavimo u njegove dependency array (`[]`).
+Želimo da nam se dohvat svih poštojećih todo-a izvrši na prvom učitavanju stranice stoga koristimo `useEffect()` hook koji će nam to omogućiti. useEffect() će se sljedeći put pozvati ili kod reload-a stranice ili kod promjene prop-a kojega postavimo u njegove dependency array (`[]`).
 
 Koristimo `hasLoaded` varijablu te prikazujemo loader ako se akcija još nije izvršila kako se ne bi desilo da korisnik vidi praznu stranicu dok mu se još sa API endpointa nisu vratili svi todo-i. Ispisujemo dohvaćene todo-e u konzoli.
 
@@ -486,6 +496,215 @@ const TodoMain: FC = () => {
 
 export default memo(TodoMain);
 ```
+
+## Kreiranje todo-a
+
+Kako bi dodali todo potrebno je ažurirati reducer `src/store/reducers/todos.ts` i kreirati akciju koja će nam stvoriti todo. Kao parametar sada proslijeđujemo objekt `data` koji sadrži definiciju našeg todo-a.
+
+Ažuriramo interface pošto ćemo primiti payload koji je različit od onoga kada smo imali `get` akciju:
+
+```javascript
+// src/constants/interfaces.ts
+export interface TodosCreatePayload {
+  data: TodoData;
+}
+```
+
+```javascript
+...
+import {
+  TodoData,
+  TodosCreatePayload,
+  TodosPayload,
+  TodosState,
+} from "src/constants/interfaces";
+
+...
+const createTodo = createAsyncThunk("createTodo", async (data: TodoData) =>
+  config.axios.post(paths.API.TODOS, data).then((result) => result)
+);
+...
+```
+
+Kao i ranije moramo ažurirati podatke na temelju response-a iz akcije te to odradujemo u reduceru. Važno je primjetiti da u `data` sada ne spremamo cijeli response već u postojeći array dodajemo objekt kojega nam je vratila akcija - `data: [...state.data, payload.data]`.
+
+```javascript
+...
+[createTodo.pending.type]: (state: TodosState) => ({
+  ...state,
+  hasLoaded: false,
+}),
+[createTodo.fulfilled.type]: (
+  state: TodosState,
+  { payload }: PayloadAction<TodosCreatePayload>
+) => ({
+  ...state,
+  data: [...state.data, payload.data],
+  hasLoaded: true,
+}),
+[createTodo.rejected.type]: (state: TodosState) => ({
+  ...state,
+  hasLoaded: true,
+}),
+...
+
+export { createTodo, getTodos };
+```
+
+Izgled kompletiranog `src/store/reducers/todos.ts`:
+
+```javascript
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+
+import config from "src/config";
+import { paths } from "src/constants";
+
+import {
+  TodoData,
+  TodosCreatePayload,
+  TodosPayload,
+  TodosState,
+} from "src/constants/interfaces";
+
+const initialState: TodosState = {
+  data: [],
+  hasLoaded: false,
+};
+
+const getTodos = createAsyncThunk("getTodos", async () =>
+  config.axios.get(paths.API.TODOS).then((result) => result)
+);
+
+const createTodo = createAsyncThunk("createTodo", async (data: TodoData) =>
+  config.axios.post(paths.API.TODOS, data).then((result) => result)
+);
+
+const extraReducers = {
+  [getTodos.pending.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: false,
+  }),
+  [getTodos.fulfilled.type]: (
+    state: TodosState,
+    { payload }: PayloadAction<TodosPayload>
+  ) => ({
+    ...state,
+    data: payload.data,
+    hasLoaded: true,
+  }),
+  [getTodos.rejected.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: true,
+  }),
+
+  [createTodo.pending.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: false,
+  }),
+  [createTodo.fulfilled.type]: (
+    state: TodosState,
+    { payload }: PayloadAction<TodosCreatePayload>
+  ) => ({
+    ...state,
+    data: [...state.data, payload.data],
+    hasLoaded: true,
+  }),
+  [createTodo.rejected.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: true,
+  }),
+};
+
+const todos = createSlice({
+  name: "todos",
+  initialState,
+  reducers: {},
+  extraReducers,
+});
+
+export { createTodo, getTodos };
+export default todos.reducer;
+```
+
+Ažuriramo `src/pages/TodoMain/index.tsx` koji nam pokazuje sve todo-e. Koristit ćemo useState() hook koji će nam čuvati upisani tekst te će se na klik `ADD` gumba pozvati akcija koja će kreirati todo sa tekstom kojega smo unijeli u input.
+
+Dodajemo dvije nove funkcije gdje jedna ažurira tekst na temelju svakog unosa korisnika te druga koja poziva akciju sa unesenim tekstom.
+
+```javascript
+const handleInputChange = useCallback((e) => setTodo(e.target.value), []);
+
+const addTodo = useCallback(
+  () => dispatch(createTodo({ label: todo, description: "Empty" })),
+  [dispatch, todo]
+);
+```
+
+Dodajemo nove tagove u HTML dio koji će nam renderirati input, gumb za dodavanje todo-a, listu kreiranih todo-a.
+
+```javascript
+...
+<input onChange={handleInputChange} />
+<button onClick={addTodo}>ADD</button>
+<ul>
+  {todos.map((todo) => (
+    <li key={todo.id}>{todo.label}</li>
+  ))}
+</ul>
+...
+```
+
+Kompletirani `src/pages/TodoMain/index.tsx`:
+
+```javascript
+import React, { FC, memo, useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+import { selectors } from "src/store";
+
+import { TodosState } from "src/constants/interfaces";
+
+import { createTodo, getTodos } from "src/store/reducers/todos";
+
+const TodoMain: FC = () => {
+  const [todo, setTodo] = useState("");
+  const dispatch = useDispatch();
+  const { hasLoaded, todos } = useSelector((state: { todos: TodosState }) =>
+    selectors.todos(state)
+  );
+
+  const handleInputChange = useCallback((e) => setTodo(e.target.value), []);
+
+  const addTodo = useCallback(
+    () => dispatch(createTodo({ label: todo, description: "Empty" })),
+    [dispatch, todo]
+  );
+
+  useEffect(() => {
+    dispatch(getTodos());
+  }, [dispatch]);
+
+  if (!hasLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <h1>Hello from todo main app!</h1>
+      <input onChange={handleInputChange} />
+      <button onClick={addTodo}>ADD</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>{todo.label}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default memo(TodoMain);
+```
+
+Isprobajte dodavanje novih todo-a i ne zaboravite da morate imati pokrenute servere.
 
 ## Style
 

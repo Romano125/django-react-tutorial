@@ -3,7 +3,12 @@ import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import config from "src/config";
 import { paths } from "src/constants";
 
-import { TodosState, TodosPayload } from "src/constants/interfaces";
+import {
+  TodoData,
+  TodosCreatePayload,
+  TodosPayload,
+  TodosState,
+} from "src/constants/interfaces";
 
 const initialState: TodosState = {
   data: [],
@@ -12,6 +17,10 @@ const initialState: TodosState = {
 
 const getTodos = createAsyncThunk("getTodos", async () =>
   config.axios.get(paths.API.TODOS).then((result) => result)
+);
+
+const createTodo = createAsyncThunk("createTodo", async (data: TodoData) =>
+  config.axios.post(paths.API.TODOS, data).then((result) => result)
 );
 
 const extraReducers = {
@@ -31,6 +40,23 @@ const extraReducers = {
     ...state,
     hasLoaded: true,
   }),
+
+  [createTodo.pending.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: false,
+  }),
+  [createTodo.fulfilled.type]: (
+    state: TodosState,
+    { payload }: PayloadAction<TodosCreatePayload>
+  ) => ({
+    ...state,
+    data: [...state.data, payload.data],
+    hasLoaded: true,
+  }),
+  [createTodo.rejected.type]: (state: TodosState) => ({
+    ...state,
+    hasLoaded: true,
+  }),
 };
 
 const todos = createSlice({
@@ -40,5 +66,5 @@ const todos = createSlice({
   extraReducers,
 });
 
-export { getTodos };
+export { createTodo, getTodos };
 export default todos.reducer;

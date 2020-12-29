@@ -280,7 +280,7 @@ Za dohvat svih todo-a koristit ćemo `thunk` kako bi pozvali API endpoint `/todo
 
 ```javascript
 const getTodos = createAsyncThunk("getTodos", async () =>
-  config.axios.get(paths.API.TODOS).then((result) => result)
+  config.axios.get(paths.API.TODOS)
 );
 ```
 
@@ -337,7 +337,7 @@ const initialState: TodosState = {
 };
 
 const getTodos = createAsyncThunk("getTodos", async () =>
-  config.axios.get(paths.API.TODOS).then((result) => result)
+  config.axios.get(paths.API.TODOS)
 );
 
 const extraReducers = {
@@ -437,9 +437,7 @@ import { getTodos } from "src/store/reducers/todos";
 
 const TodoMain: FC = () => {
   const dispatch = useDispatch();
-  const { hasLoaded, todos } = useSelector((state: { todos: TodosState }) =>
-    selectors.todos(state)
-  );
+  const { hasLoaded, todos } = useSelector((state: { todos: Tselectors.todos);
   ...
 ```
 
@@ -473,9 +471,7 @@ import { getTodos } from "src/store/reducers/todos";
 
 const TodoMain: FC = () => {
   const dispatch = useDispatch();
-  const { hasLoaded, todos } = useSelector((state: any) =>
-    selectors.todos(state)
-  );
+  const { hasLoaded, todos } = useSelector(selectors.todos);
 
   useEffect(() => {
     dispatch(getTodos());
@@ -521,7 +517,7 @@ import {
 
 ...
 const createTodo = createAsyncThunk("createTodo", async (data: TodoData) =>
-  config.axios.post(paths.API.TODOS, data).then((result) => result)
+  config.axios.post(paths.API.TODOS, data)
 );
 ...
 ```
@@ -572,11 +568,11 @@ const initialState: TodosState = {
 };
 
 const getTodos = createAsyncThunk("getTodos", async () =>
-  config.axios.get(paths.API.TODOS).then((result) => result)
+  config.axios.get(paths.API.TODOS)
 );
 
 const createTodo = createAsyncThunk("createTodo", async (data: TodoData) =>
-  config.axios.post(paths.API.TODOS, data).then((result) => result)
+  config.axios.post(paths.API.TODOS, data)
 );
 
 const extraReducers = {
@@ -668,9 +664,7 @@ import { createTodo, getTodos } from "src/store/reducers/todos";
 const TodoMain: FC = () => {
   const [todo, setTodo] = useState("");
   const dispatch = useDispatch();
-  const { hasLoaded, todos } = useSelector((state: { todos: TodosState }) =>
-    selectors.todos(state)
-  );
+  const { hasLoaded, todos } = useSelector(selectors.todos);
 
   const handleInputChange = useCallback((e) => setTodo(e.target.value), []);
 

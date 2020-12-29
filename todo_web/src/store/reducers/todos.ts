@@ -16,11 +16,11 @@ const initialState: TodosState = {
 };
 
 const getTodos = createAsyncThunk("getTodos", async () =>
-  config.axios.get(paths.API.TODOS).then((result) => result)
+  config.axios.get(paths.API.TODOS)
 );
 
 const createTodo = createAsyncThunk("createTodo", async (data: TodoData) =>
-  config.axios.post(paths.API.TODOS, data).then((result) => result)
+  config.axios.post(paths.API.TODOS, data)
 );
 
 const extraReducers = {

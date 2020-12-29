@@ -3,16 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { selectors } from "src/store";
 
-import { TodosState } from "src/constants/interfaces";
-
 import { createTodo, getTodos } from "src/store/reducers/todos";
 
 const TodoMain: FC = () => {
   const [todo, setTodo] = useState("");
   const dispatch = useDispatch();
-  const { hasLoaded, todos } = useSelector((state: { todos: TodosState }) =>
-    selectors.todos(state)
-  );
+  const { hasLoaded, todos } = useSelector(selectors.todos);
 
   const handleInputChange = useCallback((e) => setTodo(e.target.value), []);
 

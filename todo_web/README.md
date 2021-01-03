@@ -69,7 +69,7 @@ export default memo(TodoMain);
 
 Primjetite kako u gore navedenom kodu koristimo [function based component] i [memoizaciju] kako bi ubrzali izvršavanje naših funkcija (u ovom slučaju našeg page-a jer je on zapravo funkcija).
 
-Memoizacija radi tako da cache-ira vrijednosti što bi značilo da se računanje provodi samo jednom, a kod ostalih poziva se već prethodno izračunata vrijednost se dohvaća iz cache-a čime se postiže ubrzanje.
+Memoizacija radi tako da cache-ira vrijednosti što bi značilo da se računanje provodi samo jednom, a kod ostalih poziva se već prethodno izračunata vrijednost dohvaća iz cache-a čime se postiže ubrzanje.
 
 Kako bi page bio vidljiv potrebno je u `src/pages` kreirati `index.ts` iz kojega ćemo raditi exportove kako bi se page-vi mogli jednostavno uključiti u našem glavnom `index.tsx` u root-u projekta (`/src`).
 
@@ -158,7 +158,7 @@ export default configureStore({
 
 Gore navedeni `configureStore` iz Redux Toolkit-a automatski uključuje Redux Dev Tools preko kojega možemo pratiti ponašanje naših akcija ([redux dev tools]).
 
-Kako bi mogli raditi sa store-om potrebno je napraviti ekport reducera i konfiguracije store-a te stvaramo u `src/store` novi `index.ts` iz kojega radimo export svih file-ova iz `store` direktorija:
+Kako bi mogli raditi sa store-om potrebno je napraviti izvoz reducera i konfiguracije store-a te stvoriti u `src/store` novi `index.ts`. Iz njega radimo export svih file-ova iz `store` direktorija:
 
 ```javascript
 // src/store/index.ts
@@ -168,7 +168,7 @@ export { default as store } from "./store";
 
 ### Povezivanje aplikacije i store-a
 
-Kako bi aplikacija mogla komunicirati sa našim store-om u `src/index.tsx` dodajemo wrapper koji cijelu aplikaciju provida sa našim store-om.
+Kako bi aplikacija mogla komunicirati sa našim store-om u `src/index.tsx` dodajemo wrapper koji cijelu aplikaciju poslužuje sa našim store-om.
 
 ```javascript
 // src/index.tsx
@@ -193,7 +193,7 @@ ReactDOM.render(
 
 Kako bi dohvatili neku vrijednost iz store-a ili kako bi komunicirali sa našim API-jem potrebno je pozvati određenu akciju koja će nam to omogućiti.
 
-Akcije nam obično imaju tri stanja REQUEST, SUCCESS, FAILURE, te ovisno o navedenim stanjima korisniku prikazujemo sadržaj (npr. kada je stanje akcije tipa REQUEST korisniku se prikazuje neka vrsta loadinga, a na SUCCESS mu se prikažu određeni podaci).
+Akcije obično imaju tri stanja REQUEST, SUCCESS, FAILURE, te ovisno o navedenim stanjima korisniku prikazujemo sadržaj (npr. kada je stanje akcije tipa REQUEST korisniku se prikazuje neka vrsta loadinga, a na SUCCESS mu se prikažu određeni podaci).
 
 Kako bi mogli komunicirati sa našim API-jem koristit ćemo `axios`: `npm i axios`
 
@@ -220,7 +220,7 @@ Kako bi mogli upravljati podacima koji se dobiju nakon što se izvrši određena
 
 Na njih možemo gledati kao spremnike informacija koje dobivamo nakon izvršene akcije te se ti podaci koriste u našim komponentama.
 
-Važno je da reduceri budu jasno nazvani (npr. reducer `todos.ts` će nam obrađivati podatke za sve akcije koje se izvrše, a vezane su uz todo-e).
+Važno je da reduceri budu jasno nazvani (npr. reducer `todos.ts` će obrađivati podatke za sve akcije koje se izvrše, a vezane su uz todo-e).
 
 Kreiramo naš prvi reducer `src/store/reducers/todos.ts` koji će biti zadužen za obradu rezultata akcija vezanih za todo-e.
 
@@ -437,13 +437,13 @@ import { getTodos } from "src/store/reducers/todos";
 
 const TodoMain: FC = () => {
   const dispatch = useDispatch();
-  const { hasLoaded, todos } = useSelector((state: { todos: Tselectors.todos);
+  const { hasLoaded, todos } = useSelector(selectors.todos);
   ...
 ```
 
-Želimo da nam se dohvat svih poštojećih todo-a izvrši na prvom učitavanju stranice stoga koristimo `useEffect()` hook koji će nam to omogućiti. useEffect() će se sljedeći put pozvati ili kod reload-a stranice ili kod promjene prop-a kojega postavimo u njegove dependency array (`[]`).
+Želimo da se dohvat svih poštojećih todo-a izvrši na prvom učitavanju stranice stoga koristimo `useEffect()` hook koji će nam to omogućiti. useEffect() će se sljedeći put pozvati ili kod reload-a stranice ili kod promjene prop-a kojega postavimo u njegove dependency array (`[]`).
 
-Koristimo `hasLoaded` varijablu te prikazujemo loader ako se akcija još nije izvršila kako se ne bi desilo da korisnik vidi praznu stranicu dok mu se još sa API endpointa nisu vratili svi todo-i. Ispisujemo dohvaćene todo-e u konzoli.
+Koristimo `hasLoaded` varijablu te prikazujemo loader ako se akcija još nije izvršila kako se ne bi dogodilo da korisnik vidi praznu stranicu dok mu se još sa API endpointa nisu vratili svi todo-i. Ispisujemo dohvaćene todo-e u konzoli.
 
 ```javascript
 ...
@@ -507,6 +507,7 @@ export interface TodosCreatePayload {
 ```
 
 ```javascript
+// src/store/reducers/todos.ts
 ...
 import {
   TodoData,

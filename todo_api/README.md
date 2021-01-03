@@ -310,3 +310,7 @@ Naš API pokrećemo pomoću:
 - `python manage.py runserver`
 
 Na [http://localhost:8000](http://localhost:8000/) trebali bi vidjeti sučelje Django REST Frameworka gdje možete isprobati sve endpointove.
+
+Na [http://localhost:8000/todos/](http://localhost:8000/todos/) možete vidjeti listu svih, a u formi ispod možete dodati novi todo (polje created at ne morate ispuniti)
+
+Na [http://localhost:8000/todos/ID](http://localhost:8000/todos/:id) gdje ID zamijenite brojem željenog todo-a te možete vidjeti njegove detalje i brisati ga

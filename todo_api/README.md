@@ -61,8 +61,8 @@ Za to cemo iskoristiti .env sintaksu:
 
 Unutar našeg `todo_api` direktorija kreiramo dva nova file-a:
 
-- `touch .env` (ovdje spremamo sve osjetljive podatke koje ne zelimo da ostali vide, OVO SE NE VERZIONIRA!
-- `touch .env.example` (ovdje spremamo dummy podatke kako bi osoba koja dolazi na projekt znala sto sebi mora postaviti u .env kako bi mu aplikacija radila, OVO SE VERZIONIRA!)
+- `touch .env` -> ovdje spremamo sve osjetljive podatke koje ne zelimo da ostali vide, OVO SE NE VERZIONIRA! (postaviti u .gitignore)
+- `touch .env.example` -> ovdje spremamo dummy podatke kako bi osoba koja dolazi na projekt znala sto sebi mora postaviti u .env kako bi mu aplikacija radila, OVO SE VERZIONIRA!
 
 U `todo_api/settings.py` dodajemo na vrh:
 
@@ -77,7 +77,8 @@ load_dotenv(verbose=True)
 
 Kako bi mogli komunicirati sa našim API-jem potrebno je postaviti CORS.
 
-CORS nam omogućava da specificiramo od koga smijemo primati zahtjeve pošto postoje situacije kada cemo htjeti da nas API radi isključivo za našu frontend aplikaciju te želimo da svi vanjski zahtjevi na naš API endpoint budu odbijeni.
+CORS nam omogućava da specificiramo od koga smijemo primati zahtjeve pošto postoje situacije kada ćemo htjeti da API radi isključivo za našu frontend aplikaciju.
+ Svi zahtjevi koji ne dolaze od naše frontend aplikacije bit će u startu odbijeni.
 
 Potrebno je dodati paket za corseve:
 
@@ -157,6 +158,13 @@ DATABASES = {
 
 > P.S.: Kako bi nam ovo radilo potrebno je kreirati tablicu u pgAdminu jer je inače sustav neće naći i bacati će pogrešku.
 
+Nakon što smo kreirali bazu probajmo pokrenuti server sa sljedećom komandom:
+
+`python manage.py runserver`
+
+Ukoliko se server normalno pokreće tada ste uspješno postavili vezu s bazom podataka.
+
+
 Kreiranje modela
 Modeli su naše tablice u bazi te ih kreiramo kao objekte.
 
@@ -167,13 +175,13 @@ from django.db import models
 from django.utils import timezone
 
 class TodoItem(models.Model):
-label = models.CharField(max_length=20)
-description = models.CharField(max_length=200)
-completed = models.BooleanField(default=False)
-created_at = models.DateTimeField(default=timezone.now)
+    label = models.CharField(max_length=20)
+    description = models.CharField(max_length=200)
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{label} created at {created_at}.'
+        return f'{self.label} created at {self.created_at}.'
 ```
 
 Nakon svake izmjene nekog od modela potrebno je pokrenuti naredbu koja će detektirati sve promjene i napraviti migraciju kako bi se sve izmjene modela promjenile i u bazi:
@@ -199,15 +207,17 @@ from rest_framework import serializers
 
 from .models import TodoItem
 
-class TodoItemSerializer(serializers.ModelSerializer):
 
+class TodoItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoItem
-        fields = ('id',
-                  'label',
-                  'description',
-                  'completed',
-                  'created_at')
+        fields = (
+            'id',
+            'label',
+            'description',
+            'completed',
+            'created_at'
+        )
 ```
 
 ## Viewsets
@@ -224,6 +234,7 @@ from rest_framework import viewsets
 from .models import TodoItem
 from .serializers import TodoItemSerializer
 
+
 class TodoViewSet(viewsets.ModelViewSet):
     serializer_class = TodoItemSerializer
     queryset = TodoItem.objects.all()
@@ -233,7 +244,18 @@ Ako želimo dodati naš custom endpoint u viewset koristimo dekorator `@action` 
 Kreirat ćemo naš custom action odmah u našu kreiranu klasu `TodoViewSet`:
 
 ```python
-@action(methods=['GET'], detail=False, url_path='completed', url_name='get_completed_todos')
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .models import TodoItem
+from .serializers import TodoItemSerializer
+
+
+class TodoViewSet(viewsets.ModelViewSet):
+    serializer_class = TodoItemSerializer
+    queryset = TodoItem.objects.all()
+
+    @action(methods=['GET'], detail=False, url_path='completed', url_name='get_completed_todos')
     def get_completed_todos(self, request):
         completed_todos = self.get_queryset().filter(completed=True)
         serializer = self.get_serializer_class()(completed_todos, many=True)
@@ -253,11 +275,13 @@ Pomoću njih definiramo sto nam vraća koji API endpoint.
 Updateamo base url-ove u `/todo_api/urls.py` kako bi postavili da defaultna ruta ('/') ide na naše todo rute:
 
 ```python
+from django.contrib import admin
+from django.urls import path, include
+
 urlpatterns = [
-    ....
+    path('admin/', admin.site.urls),
     # register base path
     path('', include('todo_api.todo.urls')),
-    ....
 ]
 ```
 

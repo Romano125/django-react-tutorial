@@ -393,7 +393,7 @@ Radimo dohvat `data` objekta iz našeg store-a te varijable `hasLoaded` koja nam
 
 ```javascript
 // src/store/selectors/todos.ts
-import { createSelector } from "reselect";
+import { createSelector } from "@reduxjs/toolkit";
 
 import { TodosState } from "src/constants/interfaces";
 

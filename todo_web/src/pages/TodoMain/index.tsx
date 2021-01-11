@@ -1,4 +1,13 @@
 import React, { FC, memo, useCallback, useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  Container,
+  FormControl,
+  InputGroup,
+  ListGroup,
+  Spinner,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 import { selectors } from "src/store";
@@ -22,20 +31,35 @@ const TodoMain: FC = () => {
   }, [dispatch]);
 
   if (!hasLoaded) {
-    return <div>Loading...</div>;
+    return <Spinner animation="border" />;
   }
 
   return (
-    <div>
-      <h1>Hello from todo main app!</h1>
-      <input onChange={handleInputChange} />
-      <button onClick={addTodo}>ADD</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.label}</li>
-        ))}
-      </ul>
-    </div>
+    <Container className="text-center mt-5">
+      <h1 className="mb-5">
+        Hello from <i>Todo app</i>!
+      </h1>
+      <InputGroup className="mt-5 mb-5">
+        <FormControl
+          onChange={handleInputChange}
+          placeholder="Enter a todo..."
+          aria-label="Enter a todo"
+          aria-describedby="basic-addon2"
+        />
+        <InputGroup.Append>
+          <Button variant="outline-success" onClick={addTodo}>
+            ADD
+          </Button>
+        </InputGroup.Append>
+      </InputGroup>
+      <Card>
+        <ListGroup variant="flush">
+          {todos.map((todo) => (
+            <ListGroup.Item key={todo.id}>{todo.label}</ListGroup.Item>
+          ))}
+        </ListGroup>
+      </Card>
+    </Container>
   );
 };
 

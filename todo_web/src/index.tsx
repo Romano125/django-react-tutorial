@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { store } from "./store";
 import { TodoMain } from "./pages";
 
-import "./index.css";
+import "src/style/global.scss";
 
 ReactDOM.render(
   <Provider store={store}>

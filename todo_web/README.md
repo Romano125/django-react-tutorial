@@ -703,12 +703,138 @@ Isprobajte dodavanje novih todo-a i ne zaboravite da morate imati pokrenute serv
 
 ## Style
 
-Kao CSS framework u sklopu ovog tutoriala korititi ćemo Bulma CSS, te instaliramo sljedeće pakete potrebne za stiliziranje naše aplikacije:
+Kao CSS framework u sklopu ovog tutoriala korititi ćemo _React Bootstrap_, te instaliramo sljedeće pakete potrebne za stiliziranje naše aplikacije:
 
-- `npm i bulma`
-- `npm i node-sass`
+- `npm i react-bootstrap node-sass@4.14.1`
+
+Kod stiliziranja koristiti ćemo se pravilima [Sass] metodologije te sav dizajn aplikacije pišemo u datotekama sa `.scss` ektenzijom.
+
+Kreiramo `global.scss` u `src/style` gdje ćemo definirati dizajn koji će se primjeniti globalno na aplikaciju te u njega stavljamo sadržaj iz `src/index.css` datoteke koju nakon toga brišemo iz projekta:
+
+```css
+/* src/style/global.scss */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+```
+
+Ažuriramo `src/index.tsx` tako da zamjenjujemo import `css` datoteke sa `scss` datotekom:
+
+```javascript
+...
+import "src/style/global.scss"; // change this line
+...
+```
+
+Kako bi dodali Bootstrap stiliziranje u projekt ažuriramo `todo_web/public/index.html`:
+
+```html
+...
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <!-- add line below to include Bootstrap -->
+  <link
+    rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+    crossorigin="anonymous"
+  />
+  <title>Todo App</title>
+</head>
+
+...
+```
+
+Dodajemo nekoliko Bootstrap komponenti kako bi podigli izgled aplikacije:
+
+```javascript
+// src/pages/TodoMain.tsx
+
+import React, { FC, memo, useCallback, useEffect, useState } from "react";
+import {
+  Button,
+  Card,
+  Container,
+  FormControl,
+  InputGroup,
+  ListGroup,
+  Spinner,
+} from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+
+import { selectors } from "src/store";
+
+import { createTodo, getTodos } from "src/store/reducers/todos";
+
+const TodoMain: FC = () => {
+  const [todo, setTodo] = useState("");
+  const dispatch = useDispatch();
+  const { hasLoaded, todos } = useSelector(selectors.todos);
+
+  const handleInputChange = useCallback((e) => setTodo(e.target.value), []);
+
+  const addTodo = useCallback(
+    () => dispatch(createTodo({ label: todo, description: "Empty" })),
+    [dispatch, todo]
+  );
+
+  useEffect(() => {
+    dispatch(getTodos());
+  }, [dispatch]);
+
+  if (!hasLoaded) {
+    return <Spinner animation="border" />;
+  }
+
+  return (
+    <Container className="text-center mt-5">
+      <h1 className="mb-5">
+        Hello from <i>Todo app</i>!
+      </h1>
+      <InputGroup className="mt-5 mb-5">
+        <FormControl
+          onChange={handleInputChange}
+          placeholder="Enter a todo..."
+          aria-label="Enter a todo"
+          aria-describedby="basic-addon2"
+        />
+        <InputGroup.Append>
+          <Button variant="outline-success" onClick={addTodo}>
+            ADD
+          </Button>
+        </InputGroup.Append>
+      </InputGroup>
+      <Card>
+        <ListGroup variant="flush">
+          {todos.map((todo) => (
+            <ListGroup.Item key={todo.id}>{todo.label}</ListGroup.Item>
+          ))}
+        </ListGroup>
+      </Card>
+    </Container>
+  );
+};
+
+export default memo(TodoMain);
+```
 
 [function based component]: https://www.robinwieruch.de/react-function-component
 [memoizaciju]: https://codeburst.io/understanding-memoization-in-3-minutes-2e58daf33a19
 [redux dev tools]: https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd
 [ovdje]: https://reactjs.org/docs/components-and-props.html
+[sass]: https://sass-lang.com/documentation/style-rules
